@@ -11,13 +11,13 @@ class PHCompositeNode;
 class G4HakanVtxDetector;
 class PHG4Hit;
 class PHG4HitContainer;
-class PHParameters;
+class PHParametersContainer;
 
 class G4HakanVtxSteppingAction : public PHG4SteppingAction
 {
  public:
   //! constructor
-  G4HakanVtxSteppingAction(G4HakanVtxDetector*, const PHParameters* parameters);
+  G4HakanVtxSteppingAction(G4HakanVtxDetector*, const PHParametersContainer*);
 
   //! destructor
   virtual ~G4HakanVtxSteppingAction();
@@ -31,7 +31,7 @@ class G4HakanVtxSteppingAction : public PHG4SteppingAction
  private:
   //! pointer to the detector
   G4HakanVtxDetector* m_Detector;
-  const PHParameters* m_Params;
+  const PHParametersContainer *m_ParamsContainer;
   //! pointer to hit container
   PHG4HitContainer* m_HitContainer;
   PHG4Hit* m_Hit;

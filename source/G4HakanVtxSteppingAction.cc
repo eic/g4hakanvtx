@@ -3,6 +3,7 @@
 #include "G4HakanVtxDetector.h"
 
 #include <phparameter/PHParameters.h>
+#include <phparameter/PHParametersContainer.h>
 
 #include <g4detectors/PHG4StepStatusDecode.h>
 
@@ -42,10 +43,10 @@ class PHCompositeNode;
 using namespace std;
 //____________________________________________________________________________..
 G4HakanVtxSteppingAction::G4HakanVtxSteppingAction(
-    G4HakanVtxDetector *detector, const PHParameters *parameters)
+    G4HakanVtxDetector *detector, const PHParametersContainer *parameters)
   : PHG4SteppingAction(detector->GetName())
   , m_Detector(detector)
-  , m_Params(parameters)
+  , m_ParamsContainer(parameters)
   , m_HitContainer(nullptr)
   , m_Hit(nullptr)
   , m_SaveHitContainer(nullptr)
@@ -54,8 +55,8 @@ G4HakanVtxSteppingAction::G4HakanVtxSteppingAction(
   , m_SaveTrackId(-1)
   , m_SavePreStepStatus(-1)
   , m_SavePostStepStatus(-1)
-  , m_ActiveFlag(m_Params->get_int_param("active"))
-  , m_BlackHoleFlag(m_Params->get_int_param("blackhole"))
+  , m_ActiveFlag(m_ParamsContainer->GetParameters(-1)->get_int_param("active"))
+  , m_BlackHoleFlag(m_ParamsContainer->GetParameters(-1)->get_int_param("blackhole"))
   , m_EdepSum(0)
   , m_EionSum(0)
 {

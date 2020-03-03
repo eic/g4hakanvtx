@@ -44,7 +44,7 @@ int G4HakanVtxSubsystem::InitRunSubsystem(PHCompositeNode *topNode)
 {
   PHNodeIterator iter(topNode);
   PHCompositeNode *dstNode = dynamic_cast<PHCompositeNode *>(iter.findFirst("PHCompositeNode", "DST"));
-  G4HakanVtxDisplayAction *disp_action = new G4HakanVtxDisplayAction(Name(), GetParams());
+  G4HakanVtxDisplayAction *disp_action = new G4HakanVtxDisplayAction(Name());
   if (isfinite(m_ColorArray[0]) &&
       isfinite(m_ColorArray[1]) &&
       isfinite(m_ColorArray[2]) &&
@@ -76,7 +76,7 @@ int G4HakanVtxSubsystem::InitRunSubsystem(PHCompositeNode *topNode)
   // create stepping action if detector is active
   if (GetParamsContainer()->GetParameters(-1)->get_int_param("active"))
   {
-    m_SteppingAction = new G4HakanVtxSteppingAction(m_Detector, GetParams());
+    m_SteppingAction = new G4HakanVtxSteppingAction(m_Detector, GetParamsContainer());
   }
   return 0;
 }
@@ -146,18 +146,4 @@ void G4HakanVtxSubsystem::SetDefaultParameters()
   set_default_double_param(4, "PixelDx", 24. / 50.);  // dz/50
   set_default_double_param(4, "PixelDy", 4. / 10.);   // dy/10
 
-  // sizes are in cm
-  // angles are in deg
-  // units will be converted to G4 units when used
-  set_default_double_param("place_x", 0.);
-  set_default_double_param("place_y", 0.);
-  set_default_double_param("place_z", 0.);
-  set_default_double_param("rot_x", 0.);
-  set_default_double_param("rot_y", 0.);
-  set_default_double_param("rot_z", 0.);
-  set_default_double_param("size_x", 20.);
-  set_default_double_param("size_y", 20.);
-  set_default_double_param("size_z", 20.);
-
-  set_default_string_param("material", "G4_Galactic");
 }

@@ -13,13 +13,13 @@ class G4LogicalVolume;
 class G4VPhysicalVolume;
 class PHCompositeNode;
 class PHG4Subsystem;
-class PHParameters;
+class PHParametersContainer;
 
 class G4HakanVtxDetector : public PHG4Detector
 {
  public:
   //! constructor
-  G4HakanVtxDetector(PHG4Subsystem *subsys, PHCompositeNode *Node, PHParameters *parameters, const std::string &dnam);
+  G4HakanVtxDetector(PHG4Subsystem *subsys, PHCompositeNode *Node, PHParametersContainer *params_array, const std::string &dnam);
 
   //! destructor
   virtual ~G4HakanVtxDetector() {}
@@ -38,7 +38,10 @@ class G4HakanVtxDetector : public PHG4Detector
   const std::string SuperDetector() const { return m_SuperDetector; }
 
  protected:
-  PHParameters *m_Params;
+  int m_IsActiveFlag;
+  int m_IsAbsorberActiveFlag;
+  int m_Layers;
+  PHParametersContainer *m_ParamsContainer;
 
   G4HakanVtxDisplayAction *m_DisplayAction;
 

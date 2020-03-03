@@ -3,6 +3,7 @@
 #include "G4HakanVtxDisplayAction.h"
 
 #include <phparameter/PHParameters.h>
+#include <phparameter/PHParametersContainer.h>
 
 #include <g4main/PHG4Detector.h>       // for PHG4Detector
 #include <g4main/PHG4DisplayAction.h>  // for PHG4DisplayAction
@@ -17,6 +18,7 @@
 #include <Geant4/G4SystemOfUnits.hh>
 #include <Geant4/G4ThreeVector.hh>
 #include <Geant4/G4Tubs.hh>
+#include <Geant4/G4VisAttributes.hh>
 
 #include <cmath>
 #include <iostream>  // for operator<<, endl, bas...
@@ -28,12 +30,16 @@ using namespace std;
 
 G4HakanVtxDetector::G4HakanVtxDetector(PHG4Subsystem *subsys,
                                          PHCompositeNode *Node,
-                                         PHParameters *parameters,
+				       PHParametersContainer *params,
                                          const std::string &dnam)
   : PHG4Detector(subsys, Node, dnam)
-  , m_Params(parameters)
+  ,  m_ParamsContainer(params)
   , m_DisplayAction(dynamic_cast<G4HakanVtxDisplayAction *>(subsys->GetDisplayAction()))
 {
+  const PHParameters *par = m_ParamsContainer->GetParameters(-1);
+  m_IsActiveFlag = par->get_int_param("active");
+  m_IsAbsorberActiveFlag = par->get_int_param("absorberactive");
+  m_Layers = par->get_int_param("layers");
 }
 
 //_______________________________________________________________
@@ -52,41 +58,73 @@ int G4HakanVtxDetector::IsInDetector(G4VPhysicalVolume *volume) const
 
 void G4HakanVtxDetector::ConstructMe(G4LogicalVolume *logicWorld)
 {
-  double xdim = m_Params->get_double_param("size_x") * cm;
-  double ydim = m_Params->get_double_param("size_y") * cm;
-  double zdim = m_Params->get_double_param("size_z") * cm;
-  G4VSolid *solidbox =
-      new G4Box("Example03BoxSolid", xdim / 2., ydim / 2., zdim / 2.);
-  G4VSolid *cylcut =
-      new G4Tubs("CylinderCutSolid", 0., xdim / 4., zdim, 0., M_PI * rad);
-  G4VSolid *subtract = new G4SubtractionSolid("HoleInBox", solidbox, cylcut);
-  G4LogicalVolume *logical = new G4LogicalVolume(subtract, G4Material::GetMaterial("G4_Al"), "BoxWithHoleLogical");
-  m_DisplayAction->SetMyVolume(logical);
-  G4RotationMatrix *rotm = new G4RotationMatrix();
-  rotm->rotateX(m_Params->get_double_param("rot_x") * deg);
-  rotm->rotateY(m_Params->get_double_param("rot_y") * deg);
-  rotm->rotateZ(m_Params->get_double_param("rot_z") * deg);
+  for (int ilayer = 0; ilayer < m_Layers; ilayer++)
+  {
+    // get parameters for this layer
+    const PHParameters *par = m_ParamsContainer->GetParameters(ilayer);
+    double cb_VTX_ladder_DZ = par->get_double_param("Dz") * cm;
+    double cb_VTX_ladder_DY = par->get_double_param("Dy") * cm;
+    double cb_VTX_ladder_Thickness = par->get_double_param("Dx") * cm;
+    double dR = par->get_double_param("Rin") * cm;
+    double myL = 2 * M_PI * dR;
+    int NUM = myL / cb_VTX_ladder_DY;
 
-  G4VPhysicalVolume *phy = new G4PVPlacement(
-      rotm,
-      G4ThreeVector(m_Params->get_double_param("place_x") * cm,
-                    m_Params->get_double_param("place_y") * cm,
-                    m_Params->get_double_param("place_z") * cm),
-      logical, "BoxWithHole", logicWorld, 0, false, OverlapCheck());
-  // add it to the list of placed volumes so the IsInDetector method
-  // picks them up
+    for (int i = 0; i < 2; i++)
+    {
+      double LN = cb_VTX_ladder_DY * NUM;
+      double LN1 = cb_VTX_ladder_DY * (NUM + 1 + i);
+      if (LN / LN1 > 0.8) NUM = NUM + 1;
+    }
+
+    double cb_VTX_ladder_deltaphi = 2 * M_PI / NUM;
+    string solidname = "cb_VTX_ladder_Solid_" + to_string(ilayer);
+    G4VSolid *solid = new G4Box(solidname, cb_VTX_ladder_Thickness / 2., cb_VTX_ladder_DY / 2., cb_VTX_ladder_DZ / 2.);
+    string logical_name = "cb_VTX_ladder_Logic_" + to_string(ilayer);
+    G4LogicalVolume *logical = new G4LogicalVolume(solid, G4Material::GetMaterial("G4_Si"), logical_name);
+    G4VisAttributes *attr_cb_VTX_ladder = nullptr;
+    switch (ilayer)
+    {
+    case 0:
+    case 1:
+      attr_cb_VTX_ladder = new G4VisAttributes(G4Color(0.0, 0.2, 0.8, 2.0));
+      break;
+    case 2:
+      attr_cb_VTX_ladder = new G4VisAttributes(G4Color(0.0, 0.2, 0.8, 0.7));
+      break;
+    default:
+      attr_cb_VTX_ladder = new G4VisAttributes(G4Color(0.0 + 0.1 * double(ilayer - 3), 1., 1. - 0.1 * double(ilayer - 3), 1.0));
+      break;
+    }
+    attr_cb_VTX_ladder->SetForceSolid(true);
+    logical->SetVisAttributes(attr_cb_VTX_ladder);
+    for (int ia = 0; ia < NUM; ia++)
+    {
+      double phi = (ia * (cb_VTX_ladder_deltaphi));
+      double x = -dR * cos(phi);
+      double y = -dR * sin(phi);
+      G4RotationMatrix rot;
+      rot.rotateZ(cb_VTX_ladder_deltaphi * ia);
+      rot.rotateZ(-7. * deg);
+      ostringstream physname;
+      physname << "cb_VTX_ladder_Phys_" << ilayer << "_" << ia;
+      G4VPhysicalVolume *phy = new G4PVPlacement(G4Transform3D(rot, G4ThreeVector(x, y, -400)),
+                                                 logical, physname.str(),
+                                                 logicWorld, 0, false, OverlapCheck());
   m_PhysicalVolumesSet.insert(phy);
+    }
+  }
+
   return;
 }
 
 void G4HakanVtxDetector::Print(const std::string &what) const
 {
-  cout << "Example03 Detector:" << endl;
+  cout << "Hakans VTX Detector:" << endl;
   if (what == "ALL" || what == "VOLUME")
   {
     cout << "Version 0.1" << endl;
     cout << "Parameters:" << endl;
-    m_Params->Print();
+    m_ParamsContainer->Print();
   }
   return;
 }
