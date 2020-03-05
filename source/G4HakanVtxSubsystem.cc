@@ -7,6 +7,7 @@
 #include <phparameter/PHParameters.h>
 #include <phparameter/PHParametersContainer.h>
 
+#include <g4main/PHG4DisplayAction.h>
 #include <g4main/PHG4HitContainer.h>
 #include <g4main/PHG4SteppingAction.h>  // for PHG4SteppingAction
 
@@ -44,15 +45,7 @@ int G4HakanVtxSubsystem::InitRunSubsystem(PHCompositeNode *topNode)
 {
   PHNodeIterator iter(topNode);
   PHCompositeNode *dstNode = dynamic_cast<PHCompositeNode *>(iter.findFirst("PHCompositeNode", "DST"));
-  G4HakanVtxDisplayAction *disp_action = new G4HakanVtxDisplayAction(Name());
-  if (isfinite(m_ColorArray[0]) &&
-      isfinite(m_ColorArray[1]) &&
-      isfinite(m_ColorArray[2]) &&
-      isfinite(m_ColorArray[3]))
-  {
-    disp_action->SetColor(m_ColorArray[0], m_ColorArray[1], m_ColorArray[2], m_ColorArray[3]);
-  }
-  m_DisplayAction = disp_action;
+  m_DisplayAction = new G4HakanVtxDisplayAction(Name());
   PHNodeIterator dstIter(dstNode);
   if (GetParamsContainer()->GetParameters(-1)->get_int_param("active"))
   {
@@ -110,6 +103,7 @@ PHG4Detector *G4HakanVtxSubsystem::GetDetector(void) const
 
 void G4HakanVtxSubsystem::SetDefaultParameters()
 {
+  int NLayers = 0; // just for counting the layers, if one is added or subtracted we do not have to keep updating this
   // all units are in cm
   set_default_double_param(0, "Dx", 0.0281);
   set_default_double_param(0, "Dy", 1.5);
@@ -117,6 +111,7 @@ void G4HakanVtxSubsystem::SetDefaultParameters()
   set_default_double_param(0, "Rin", 2.34);
   set_default_double_param(0, "PixelDx", 1.);  // dz/10. = 1.
   set_default_double_param(0, "PixelDy", 2. / 50.);   // dy/50
+  NLayers++;
 
   set_default_double_param(1, "Dx", 0.0281);
   set_default_double_param(1, "Dy", 1.5);
@@ -124,6 +119,7 @@ void G4HakanVtxSubsystem::SetDefaultParameters()
   set_default_double_param(1, "Rin", 4.68);
   set_default_double_param(1, "PixelDx", 11. / 10.);  // dz/10
   set_default_double_param(1, "PixelDy", 2. / 50.);   // dy/50
+  NLayers++;
 
   set_default_double_param(2, "Dx", 0.0749);
   set_default_double_param(2, "Dy", 6.);
@@ -131,6 +127,7 @@ void G4HakanVtxSubsystem::SetDefaultParameters()
   set_default_double_param(2, "Rin", 8.76);
   set_default_double_param(2, "PixelDx", 18. / 50.);  // dz/50
   set_default_double_param(2, "PixelDy", 4. / 10.);   // dy/10
+  NLayers++;
 
   set_default_double_param(3, "Dx", 0.0749);
   set_default_double_param(3, "Dy", 6.);
@@ -138,6 +135,7 @@ void G4HakanVtxSubsystem::SetDefaultParameters()
   set_default_double_param(3, "Rin", 13.38);
   set_default_double_param(3, "PixelDx", 24. / 50.);  // dz/50
   set_default_double_param(3, "PixelDy", 4. / 10.);   // dy/10
+  NLayers++;
 
   set_default_double_param(4, "Dx", 2*0.0749);
   set_default_double_param(4, "Dy", 6.);
@@ -145,5 +143,11 @@ void G4HakanVtxSubsystem::SetDefaultParameters()
   set_default_double_param(4, "Rin", 18.);
   set_default_double_param(4, "PixelDx", 24. / 50.);  // dz/50
   set_default_double_param(4, "PixelDy", 4. / 10.);   // dy/10
+  NLayers++;
 
+// Here are the global parameters (detid = -1)
+  set_default_int_param(-1, "active", 1);
+  set_default_int_param(-1, "absorberactive", 0);
+  set_default_int_param(-1, "blackhole", 0);
+  set_default_int_param(-1, "layers", NLayers);
 }

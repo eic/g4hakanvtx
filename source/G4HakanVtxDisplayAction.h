@@ -5,7 +5,9 @@
 
 #include <g4main/PHG4DisplayAction.h>
 
+#include <map>
 #include <string>  // for string
+#include <vector>
 
 class G4Colour;
 class G4VisAttributes;
@@ -21,13 +23,11 @@ class G4HakanVtxDisplayAction : public PHG4DisplayAction
   virtual ~G4HakanVtxDisplayAction();
 
   void ApplyDisplayAction(G4VPhysicalVolume *physvol);
-  void SetMyVolume(G4LogicalVolume *vol) { m_MyVolume = vol; }
-  void SetColor(const double red, const double green, const double blue, const double alpha = 1.);
+  void AddVolume(G4LogicalVolume *vol, int index) { m_VolMap.insert(std::make_pair(vol,index));}
 
  private:
-  G4LogicalVolume *m_MyVolume;
-  G4VisAttributes *m_VisAtt;
-  G4Colour *m_Colour;
+  std::vector<G4VisAttributes *> m_VisAttVec;
+  std::map<G4LogicalVolume *, int> m_VolMap;
 };
 
 #endif  // G4DETECTORS_PHG4BLOCKDISPLAYACTION_H

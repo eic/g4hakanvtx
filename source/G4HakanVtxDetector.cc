@@ -46,13 +46,11 @@ G4HakanVtxDetector::G4HakanVtxDetector(PHG4Subsystem *subsys,
 //_______________________________________________________________
 int G4HakanVtxDetector::IsInDetector(G4VPhysicalVolume *volume) const
 {
-  set<G4VPhysicalVolume *>::const_iterator iter =
-      m_PhysicalVolumesSet.find(volume);
+  set<G4VPhysicalVolume *>::const_iterator iter = m_PhysicalVolumesSet.find(volume);
   if (iter != m_PhysicalVolumesSet.end())
   {
     return 1;
   }
-
   return 0;
 }
 
@@ -81,22 +79,8 @@ void G4HakanVtxDetector::ConstructMe(G4LogicalVolume *logicWorld)
     G4VSolid *solid = new G4Box(solidname, cb_VTX_ladder_Thickness / 2., cb_VTX_ladder_DY / 2., cb_VTX_ladder_DZ / 2.);
     string logical_name = "cb_VTX_ladder_Logic_" + to_string(ilayer);
     G4LogicalVolume *logical = new G4LogicalVolume(solid, G4Material::GetMaterial("G4_Si"), logical_name);
-    G4VisAttributes *attr_cb_VTX_ladder = nullptr;
-    switch (ilayer)
-    {
-    case 0:
-    case 1:
-      attr_cb_VTX_ladder = new G4VisAttributes(G4Color(0.0, 0.2, 0.8, 2.0));
-      break;
-    case 2:
-      attr_cb_VTX_ladder = new G4VisAttributes(G4Color(0.0, 0.2, 0.8, 0.7));
-      break;
-    default:
-      attr_cb_VTX_ladder = new G4VisAttributes(G4Color(0.0 + 0.1 * double(ilayer - 3), 1., 1. - 0.1 * double(ilayer - 3), 1.0));
-      break;
-    }
-    attr_cb_VTX_ladder->SetForceSolid(true);
-    logical->SetVisAttributes(attr_cb_VTX_ladder);
+    m_DisplayAction->AddVolume(logical,ilayer);
+
     for (int ia = 0; ia < NUM; ia++)
     {
       double phi = (ia * (cb_VTX_ladder_deltaphi));

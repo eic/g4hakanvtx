@@ -13,44 +13,46 @@ using namespace std;
 
 G4HakanVtxDisplayAction::G4HakanVtxDisplayAction(const std::string &name)
   : PHG4DisplayAction(name)
-  , m_MyVolume(nullptr)
-  , m_VisAtt(nullptr)
-  , m_Colour(nullptr)
 {
 }
 
 G4HakanVtxDisplayAction::~G4HakanVtxDisplayAction()
 {
-  delete m_VisAtt;
-  delete m_Colour;
+  for (auto &it:m_VisAttVec)
+  {
+    delete it;
+  }
+  m_VisAttVec.clear();
+  m_VolMap.clear();
 }
 
 void G4HakanVtxDisplayAction::ApplyDisplayAction(G4VPhysicalVolume *physvol)
 {
   // check if vis attributes exist, if so someone else has set them and we do nothing
-  if (m_MyVolume->GetVisAttributes())
+  for (auto &it: m_VolMap)
   {
-    return;
+    if ((it.first)->GetVisAttributes())
+    {
+      continue;
+    }
+  G4VisAttributes *VisAtt = new G4VisAttributes();
+  VisAtt->SetVisibility(true);
+  VisAtt->SetForceSolid(true);
+  switch (it.second)
+  {
+  case 0:
+  case 1:
+    VisAtt->SetColour(G4Color(0.0, 0.2, 0.8, 2.0));
+    break;
+  case 2:
+    VisAtt->SetColour(G4Color(0.0, 0.2, 0.8, 0.7));
+    break;
+  default:
+    VisAtt->SetColour(G4Color(0.0 + 0.1 * double(it.second - 3), 1., 1. - 0.1 * double(it.second  - 3), 1.0));
+break;
   }
-  m_VisAtt = new G4VisAttributes();
-  if (m_Colour)
-  {
-    m_VisAtt->SetColour(m_Colour->GetRed(),
-                        m_Colour->GetGreen(),
-                        m_Colour->GetBlue(),
-                        m_Colour->GetAlpha());
-    m_VisAtt->SetVisibility(true);
-    m_VisAtt->SetForceSolid(true);
-  }
-  m_MyVolume->SetVisAttributes(m_VisAtt);
-  return;
-}
-
-void G4HakanVtxDisplayAction::SetColor(const double red, const double green, const double blue, const double alpha)
-{
-  if (isfinite(red) && isfinite(green) && isfinite(blue) && isfinite(alpha))
-  {
-    m_Colour = new G4Colour(red, green, blue, alpha);
+  (it.first)->SetVisAttributes(VisAtt);
+  m_VisAttVec.push_back(VisAtt);
   }
   return;
 }
