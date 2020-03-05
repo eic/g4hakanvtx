@@ -6,7 +6,7 @@
 #include <g4detectors/PHG4DetectorGroupSubsystem.h>
 
 #if !defined(__CINT__) || defined(__CLING__)
-#include <array>   // for array
+#include <array>  // for array
 #endif
 
 #include <string>

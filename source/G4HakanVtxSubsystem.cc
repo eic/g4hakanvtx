@@ -18,7 +18,7 @@
 #include <phool/PHObject.h>        // for PHObject
 #include <phool/getClass.h>
 
-#include <cmath>                                // for isfinite
+#include <cmath>  // for isfinite
 
 using namespace std;
 
@@ -103,14 +103,14 @@ PHG4Detector *G4HakanVtxSubsystem::GetDetector(void) const
 
 void G4HakanVtxSubsystem::SetDefaultParameters()
 {
-  int NLayers = 0; // just for counting the layers, if one is added or subtracted we do not have to keep updating this
+  int NLayers = 0;  // just for counting the layers, if one is added or subtracted we do not have to keep updating this
   // all units are in cm
   set_default_double_param(0, "Dx", 0.0281);
   set_default_double_param(0, "Dy", 1.5);
   set_default_double_param(0, "Dz", 27.);
   set_default_double_param(0, "Rin", 2.34);
-  set_default_double_param(0, "PixelDx", 1.);  // dz/10. = 1.
-  set_default_double_param(0, "PixelDy", 2. / 50.);   // dy/50
+  set_default_double_param(0, "PixelDx", 1.);        // dz/10. = 1.
+  set_default_double_param(0, "PixelDy", 2. / 50.);  // dy/50
   NLayers++;
 
   set_default_double_param(1, "Dx", 0.0281);
@@ -137,7 +137,7 @@ void G4HakanVtxSubsystem::SetDefaultParameters()
   set_default_double_param(3, "PixelDy", 4. / 10.);   // dy/10
   NLayers++;
 
-  set_default_double_param(4, "Dx", 2*0.0749);
+  set_default_double_param(4, "Dx", 2 * 0.0749);
   set_default_double_param(4, "Dy", 6.);
   set_default_double_param(4, "Dz", 84.);
   set_default_double_param(4, "Rin", 18.);
@@ -145,7 +145,7 @@ void G4HakanVtxSubsystem::SetDefaultParameters()
   set_default_double_param(4, "PixelDy", 4. / 10.);   // dy/10
   NLayers++;
 
-// Here are the global parameters (detid = -1)
+  // Here are the global parameters (detid = -1)
   set_default_int_param(-1, "active", 1);
   set_default_int_param(-1, "absorberactive", 0);
   set_default_int_param(-1, "blackhole", 0);

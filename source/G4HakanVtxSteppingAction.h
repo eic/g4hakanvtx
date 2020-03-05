@@ -31,7 +31,7 @@ class G4HakanVtxSteppingAction : public PHG4SteppingAction
  private:
   //! pointer to the detector
   G4HakanVtxDetector* m_Detector;
-  const PHParametersContainer *m_ParamsContainer;
+  const PHParametersContainer* m_ParamsContainer;
   //! pointer to hit container
   PHG4HitContainer* m_HitContainer;
   PHG4Hit* m_Hit;

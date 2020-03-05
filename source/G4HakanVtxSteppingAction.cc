@@ -73,7 +73,7 @@ G4HakanVtxSteppingAction::~G4HakanVtxSteppingAction()
 
 //____________________________________________________________________________..
 bool G4HakanVtxSteppingAction::UserSteppingAction(const G4Step *aStep,
-                                                   bool was_used)
+                                                  bool was_used)
 {
   G4TouchableHandle touch = aStep->GetPreStepPoint()->GetTouchableHandle();
   G4TouchableHandle touchpost = aStep->GetPostStepPoint()->GetTouchableHandle();

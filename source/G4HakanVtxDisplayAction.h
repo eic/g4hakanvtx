@@ -23,7 +23,7 @@ class G4HakanVtxDisplayAction : public PHG4DisplayAction
   virtual ~G4HakanVtxDisplayAction();
 
   void ApplyDisplayAction(G4VPhysicalVolume *physvol);
-  void AddVolume(G4LogicalVolume *vol, int index) { m_VolMap.insert(std::make_pair(vol,index));}
+  void AddVolume(G4LogicalVolume *vol, int index) { m_VolMap.insert(std::make_pair(vol, index)); }
 
  private:
   std::vector<G4VisAttributes *> m_VisAttVec;

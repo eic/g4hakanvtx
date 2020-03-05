@@ -29,11 +29,11 @@ class PHCompositeNode;
 using namespace std;
 
 G4HakanVtxDetector::G4HakanVtxDetector(PHG4Subsystem *subsys,
-                                         PHCompositeNode *Node,
-				       PHParametersContainer *params,
-                                         const std::string &dnam)
+                                       PHCompositeNode *Node,
+                                       PHParametersContainer *params,
+                                       const std::string &dnam)
   : PHG4Detector(subsys, Node, dnam)
-  ,  m_ParamsContainer(params)
+  , m_ParamsContainer(params)
   , m_DisplayAction(dynamic_cast<G4HakanVtxDisplayAction *>(subsys->GetDisplayAction()))
 {
   const PHParameters *par = m_ParamsContainer->GetParameters(-1);
@@ -66,12 +66,14 @@ void G4HakanVtxDetector::ConstructMe(G4LogicalVolume *logicWorld)
     double dR = par->get_double_param("Rin") * cm;
     double myL = 2 * M_PI * dR;
     int NUM = myL / cb_VTX_ladder_DY;
-
     for (int i = 0; i < 2; i++)
     {
       double LN = cb_VTX_ladder_DY * NUM;
       double LN1 = cb_VTX_ladder_DY * (NUM + 1 + i);
-      if (LN / LN1 > 0.8) NUM = NUM + 1;
+      if (LN / LN1 > 0.8)
+      {
+        NUM++;
+      }
     }
 
     double cb_VTX_ladder_deltaphi = 2 * M_PI / NUM;
@@ -79,7 +81,7 @@ void G4HakanVtxDetector::ConstructMe(G4LogicalVolume *logicWorld)
     G4VSolid *solid = new G4Box(solidname, cb_VTX_ladder_Thickness / 2., cb_VTX_ladder_DY / 2., cb_VTX_ladder_DZ / 2.);
     string logical_name = "cb_VTX_ladder_Logic_" + to_string(ilayer);
     G4LogicalVolume *logical = new G4LogicalVolume(solid, G4Material::GetMaterial("G4_Si"), logical_name);
-    m_DisplayAction->AddVolume(logical,ilayer);
+    m_DisplayAction->AddVolume(logical, ilayer);
 
     for (int ia = 0; ia < NUM; ia++)
     {
@@ -94,7 +96,7 @@ void G4HakanVtxDetector::ConstructMe(G4LogicalVolume *logicWorld)
       G4VPhysicalVolume *phy = new G4PVPlacement(G4Transform3D(rot, G4ThreeVector(x, y, -400)),
                                                  logical, physname.str(),
                                                  logicWorld, 0, false, OverlapCheck());
-  m_PhysicalVolumesSet.insert(phy);
+      m_PhysicalVolumesSet.insert(phy);
     }
   }
 
