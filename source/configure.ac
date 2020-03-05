@@ -14,7 +14,7 @@ case $CXX in
  ;;
 esac
 
-dnl test for root 6
+dnl test for root 6 (left here in case you need to test for the root version
 if test `root-config --version | awk '{print $1>=6.?"1":"0"}'` = 1; then
 CINTDEFS=" -noIncludePaths  -inlineInputHeader "
 AC_SUBST(CINTDEFS)
