@@ -154,6 +154,7 @@ bool G4HakanVtxSteppingAction::UserSteppingAction(const G4Step *aStep,
       m_Hit = new PHG4Hitv1();
     }
     m_Hit->set_layer(detector_id);
+    m_Hit->set_row(volume->GetCopyNo());
     // here we set the entrance values in cm
     m_Hit->set_x(0, prePoint->GetPosition().x() / cm);
     m_Hit->set_y(0, prePoint->GetPosition().y() / cm);
@@ -306,8 +307,15 @@ bool G4HakanVtxSteppingAction::UserSteppingAction(const G4Step *aStep,
 //____________________________________________________________________________..
 void G4HakanVtxSteppingAction::SetInterfacePointers(PHCompositeNode *topNode)
 {
-  string hitnodename = "G4HIT_" + m_Detector->GetName();
-
+  string hitnodename;
+  if (m_Detector->SuperDetector() != "NONE")
+  {
+    hitnodename = "G4HIT_" + m_Detector->SuperDetector();
+  }
+  else
+  {
+    hitnodename = "G4HIT_" + m_Detector->GetName();
+  }
   // now look for the map and grab a pointer to it.
   m_HitContainer = findNode::getClass<PHG4HitContainer>(topNode, hitnodename);
 

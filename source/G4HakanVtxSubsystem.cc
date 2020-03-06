@@ -66,6 +66,7 @@ int G4HakanVtxSubsystem::InitRunSubsystem(PHCompositeNode *topNode)
   // create detector
   m_Detector = new G4HakanVtxDetector(this, topNode, GetParamsContainer(), Name());
   m_Detector->OverlapCheck(CheckOverlap());
+   m_Detector->SuperDetector(SuperDetector());
   // create stepping action if detector is active
   if (GetParamsContainer()->GetParameters(-1)->get_int_param("active"))
   {
@@ -110,8 +111,8 @@ void G4HakanVtxSubsystem::SetDefaultParameters()
   set_default_double_param(0, "Dz", 27.);
   set_default_double_param(0, "Rin", 2.34);
   set_default_double_param(0, "deltashi", -7.);
-  set_default_double_param(0, "PixelDx", 1.);        // dz/10. = 1.
-  set_default_double_param(0, "PixelDy", 2. / 50.);  // dy/50
+  // set_default_double_param(0, "PixelDx", 1.);        // dz/10. = 1.
+  // set_default_double_param(0, "PixelDy", 2. / 50.);  // dy/50
   NLayers++;
 
   set_default_double_param(1, "Dx", 0.0281);
@@ -119,8 +120,8 @@ void G4HakanVtxSubsystem::SetDefaultParameters()
   set_default_double_param(1, "Dz", 27.);
   set_default_double_param(1, "Rin", 4.68);
   set_default_double_param(1, "deltashi", -7.);
-  set_default_double_param(1, "PixelDx", 11. / 10.);  // dz/10
-  set_default_double_param(1, "PixelDy", 2. / 50.);   // dy/50
+  // set_default_double_param(1, "PixelDx", 11. / 10.);  // dz/10
+  // set_default_double_param(1, "PixelDy", 2. / 50.);   // dy/50
   NLayers++;
 
   set_default_double_param(2, "Dx", 0.0749);
@@ -128,8 +129,8 @@ void G4HakanVtxSubsystem::SetDefaultParameters()
   set_default_double_param(2, "Dz", 84.);
   set_default_double_param(2, "Rin", 8.76);
   set_default_double_param(2, "deltashi", -7.);
-  set_default_double_param(2, "PixelDx", 18. / 50.);  // dz/50
-  set_default_double_param(2, "PixelDy", 4. / 10.);   // dy/10
+  // set_default_double_param(2, "PixelDx", 18. / 50.);  // dz/50
+  // set_default_double_param(2, "PixelDy", 4. / 10.);   // dy/10
   NLayers++;
 
   set_default_double_param(3, "Dx", 0.0749);
@@ -137,8 +138,8 @@ void G4HakanVtxSubsystem::SetDefaultParameters()
   set_default_double_param(3, "Dz", 84.);
   set_default_double_param(3, "Rin", 13.38);
   set_default_double_param(3, "deltashi", -7.);
-  set_default_double_param(3, "PixelDx", 24. / 50.);  // dz/50
-  set_default_double_param(3, "PixelDy", 4. / 10.);   // dy/10
+  // set_default_double_param(3, "PixelDx", 24. / 50.);  // dz/50
+  // set_default_double_param(3, "PixelDy", 4. / 10.);   // dy/10
   NLayers++;
 
   set_default_double_param(4, "Dx", 2 * 0.0749);
@@ -146,8 +147,8 @@ void G4HakanVtxSubsystem::SetDefaultParameters()
   set_default_double_param(4, "Dz", 84.);
   set_default_double_param(4, "Rin", 18.);
   set_default_double_param(4, "deltashi", -7.);
-  set_default_double_param(4, "PixelDx", 24. / 50.);  // dz/50
-  set_default_double_param(4, "PixelDy", 4. / 10.);   // dy/10
+  // set_default_double_param(4, "PixelDx", 24. / 50.);  // dz/50
+  // set_default_double_param(4, "PixelDy", 4. / 10.);   // dy/10
   NLayers++;
 
   int NFLayers = 0;

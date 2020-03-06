@@ -1,4 +1,3 @@
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,00,0)
 #include <fun4all/SubsysReco.h>
 #include <fun4all/Fun4AllServer.h>
 #include <fun4all/Fun4AllInputManager.h>
@@ -13,14 +12,13 @@
 #include <g4main/PHG4ParticleGun.h>
 #include <g4main/PHG4Reco.h>
 #include <g4hakanvtx/G4HakanVtxSubsystem.h>
+#include <g4hakanvtx/SimpleNtuple.h>
 #include <phool/recoConsts.h>
 
 R__LOAD_LIBRARY(libfun4all.so)
 R__LOAD_LIBRARY(libg4detectors.so)
 R__LOAD_LIBRARY(libg4hakanvtx.so)
 R__LOAD_LIBRARY(libg4histos.so)
-
-#endif
 
 void Fun4All_G4_HakanVtx(int nEvents = 1)
 {
@@ -41,14 +39,15 @@ void Fun4All_G4_HakanVtx(int nEvents = 1)
 //
 
 // the PHG4ParticleGenerator makes cones using phi and eta
-   PHG4ParticleGenerator *gen = new PHG4ParticleGenerator();
-   gen->set_name("e-");
-   gen->set_vtx(0, 0, 0);
-   gen->set_eta_range(-0.9, 0.9);
-   gen->set_mom_range(1.0, 10.0);
-   gen->set_z_range(0.,0.);
-     gen->set_phi_range(-5/180.*TMath::Pi(), 5/180.*TMath::Pi());
-               se->registerSubsystem(gen);
+  PHG4ParticleGenerator *gen = new PHG4ParticleGenerator();
+  gen->set_name("geantino");
+  gen->set_vtx(0, 0, 0);
+  gen->set_eta_range(-2, 2);
+  gen->set_mom_range(1.0, 10.0);
+  gen->set_z_range(0.,0.);
+// use 4 Pi, otherwise set the phi range (using rad)
+//     gen->set_phi_range(-5/180.*TMath::Pi(), 5/180.*TMath::Pi());
+  se->registerSubsystem(gen);
 
 //  PHG4ParticleGun *gun = new PHG4ParticleGun();
 //  gun->set_name("pi-");
@@ -62,17 +61,17 @@ void Fun4All_G4_HakanVtx(int nEvents = 1)
 // Geant4 setup
 //
   PHG4Reco* g4Reco = new PHG4Reco();
-  g4Reco->set_field(1.5); // no field
+  g4Reco->set_field(1.5); // 1.5T field
   g4Reco->save_DST_geometry(false);
 // try non default physics lists
   //g4Reco->SetPhysicsList("FTFP_BERT_HP");
 
   G4HakanVtxSubsystem *hakanvtx = new G4HakanVtxSubsystem("VTX");
- hakanvtx->set_color(1,1,0,1);
- hakanvtx->SetActive();
- hakanvtx->OverlapCheck();
-// the code has 4 layers
- hakanvtx->set_int_param(-1,"forward_layers",3);
+  hakanvtx->SetActive();
+// hakanvtx->OverlapCheck(); // this detector has plenty overlaps forward
+// the code has 4 layers, but we want onluy the first 3
+  hakanvtx->set_int_param(-1,"forward_layers",3);
+  hakanvtx->SuperDetector("VTX");
   g4Reco->registerSubsystem(hakanvtx);
 
   se->registerSubsystem( g4Reco );
@@ -81,7 +80,7 @@ void Fun4All_G4_HakanVtx(int nEvents = 1)
   // Fun4All modules
   ///////////////////////////////////////////
 
-  G4HitNtuple *hits = new G4HitNtuple("Hits");
+  SimpleNtuple *hits = new SimpleNtuple("Hits");
   hits->AddNode("VTX",0);
   se->registerSubsystem(hits);
 

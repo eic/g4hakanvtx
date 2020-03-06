@@ -21,13 +21,15 @@ libg4hakanvtx_la_LIBADD = \
   -lg4testbench 
 
 pkginclude_HEADERS = \
-  G4HakanVtxSubsystem.h
+  G4HakanVtxSubsystem.h \
+  SimpleNtuple.h
 
 libg4hakanvtx_la_SOURCES = \
   G4HakanVtxDetector.cc \
   G4HakanVtxDisplayAction.cc \
   G4HakanVtxSubsystem.cc \
-  G4HakanVtxSteppingAction.cc
+  G4HakanVtxSteppingAction.cc \
+  SimpleNtuple.cc
 
 ################################################
 # linking tests

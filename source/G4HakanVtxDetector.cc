@@ -99,7 +99,7 @@ void G4HakanVtxDetector::ConstructMe(G4LogicalVolume *logicWorld)
       physname << "cb_VTX_ladder_Phys_" << ilayer << "_" << ia;
       G4VPhysicalVolume *phy = new G4PVPlacement(G4Transform3D(rot, G4ThreeVector(x, y, 0)),
                                                  logical, physname.str(),
-                                                 logicWorld, 0, false, OverlapCheck());
+                                                 logicWorld, false, ia, OverlapCheck());
 
       m_PhysicalVolumesMap.insert(make_pair(phy,ilayer));
     }
@@ -146,8 +146,8 @@ void G4HakanVtxDetector::ConstructLaddersEndcaps(G4LogicalVolume *motherlogic)
       string physname = "VTX_ladderEnd_" + to_string(lay) + "_" + to_string(ia);
       G4VPhysicalVolume *phy = new G4PVPlacement(G4Transform3D(rot, G4ThreeVector(x, y, z)),
                                                  logical, physname,
-                                                 motherlogic, 0, false, OverlapCheck());
-      m_PhysicalVolumesMap.insert(make_pair(phy,lay));
+                                                 motherlogic, false, ia, OverlapCheck());
+      m_PhysicalVolumesMap.insert(make_pair(phy,lay+10));
     }
 
     solidname = "Solid_VTX_ladder_END_H" + to_string(lay);
@@ -170,8 +170,8 @@ void G4HakanVtxDetector::ConstructLaddersEndcaps(G4LogicalVolume *motherlogic)
       string physname = "VTX_ladderEnd2_" + to_string(lay) + "_" + to_string(ia);
       G4VPhysicalVolume *phy = new G4PVPlacement(G4Transform3D(rot, G4ThreeVector(x, y, z)),
                                                  logical, physname,
-                                                 motherlogic, 0, false, OverlapCheck());
-      m_PhysicalVolumesMap.insert(make_pair(phy,lay));
+                                                 motherlogic, false, ia, OverlapCheck());
+      m_PhysicalVolumesMap.insert(make_pair(phy,lay+20));
     }
   }
 }
