@@ -45,14 +45,17 @@ G4HakanVtxDetector::G4HakanVtxDetector(PHG4Subsystem *subsys,
 
 //_______________________________________________________________
 //_______________________________________________________________
-int G4HakanVtxDetector::IsInDetector(G4VPhysicalVolume *volume) const
+pair<int,int> G4HakanVtxDetector::IsInDetector(G4VPhysicalVolume *volume) const
 {
-  set<G4VPhysicalVolume *>::const_iterator iter = m_PhysicalVolumesSet.find(volume);
-  if (iter != m_PhysicalVolumesSet.end())
+// "auto" is frowned upon but
+// we just want to see if it exists and in our detectors we use sets and maps
+// with "auto" we can do this here generically
+  map<G4VPhysicalVolume *, int>::const_iterator iter = m_PhysicalVolumesMap.find(volume);
+  if (iter != m_PhysicalVolumesMap.end())
   {
-    return 1;
+    return make_pair(1,iter->second);
   }
-  return 0;
+  return make_pair(0,0);
 }
 
 void G4HakanVtxDetector::ConstructMe(G4LogicalVolume *logicWorld)
@@ -98,7 +101,7 @@ void G4HakanVtxDetector::ConstructMe(G4LogicalVolume *logicWorld)
                                                  logical, physname.str(),
                                                  logicWorld, 0, false, OverlapCheck());
 
-      m_PhysicalVolumesSet.insert(phy);
+      m_PhysicalVolumesMap.insert(make_pair(phy,ilayer));
     }
   }
   ConstructLaddersEndcaps(logicWorld);
@@ -144,7 +147,7 @@ void G4HakanVtxDetector::ConstructLaddersEndcaps(G4LogicalVolume *motherlogic)
       G4VPhysicalVolume *phy = new G4PVPlacement(G4Transform3D(rot, G4ThreeVector(x, y, z)),
                                                  logical, physname,
                                                  motherlogic, 0, false, OverlapCheck());
-      m_PhysicalVolumesSet.insert(phy);
+      m_PhysicalVolumesMap.insert(make_pair(phy,lay));
     }
 
     solidname = "Solid_VTX_ladder_END_H" + to_string(lay);
@@ -168,7 +171,7 @@ void G4HakanVtxDetector::ConstructLaddersEndcaps(G4LogicalVolume *motherlogic)
       G4VPhysicalVolume *phy = new G4PVPlacement(G4Transform3D(rot, G4ThreeVector(x, y, z)),
                                                  logical, physname,
                                                  motherlogic, 0, false, OverlapCheck());
-      m_PhysicalVolumesSet.insert(phy);
+      m_PhysicalVolumesMap.insert(make_pair(phy,lay));
     }
   }
 }

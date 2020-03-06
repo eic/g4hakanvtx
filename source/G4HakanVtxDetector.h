@@ -5,7 +5,7 @@
 
 #include <g4main/PHG4Detector.h>
 
-#include <set>
+#include <map>
 #include <string>  // for string
 
 class G4HakanVtxDisplayAction;
@@ -31,7 +31,7 @@ class G4HakanVtxDetector : public PHG4Detector
 
   //!@name volume accessors
   //@{
-  int IsInDetector(G4VPhysicalVolume *) const;
+  std::pair<int,int> IsInDetector(G4VPhysicalVolume *) const;
   //@}
 
   void SuperDetector(const std::string &name) { m_SuperDetector = name; }
@@ -47,7 +47,7 @@ class G4HakanVtxDetector : public PHG4Detector
   G4HakanVtxDisplayAction *m_DisplayAction;
 
   // active volumes
-  std::set<G4VPhysicalVolume *> m_PhysicalVolumesSet;
+  std::map<G4VPhysicalVolume *, int> m_PhysicalVolumesMap;
 
   std::string m_SuperDetector;
 };

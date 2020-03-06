@@ -83,7 +83,8 @@ bool G4HakanVtxSteppingAction::UserSteppingAction(const G4Step *aStep,
   //  == 0 outside of detector
   //   > 0 for hits in active volume
   //  < 0 for hits in passive material
-  int whichactive = m_Detector->IsInDetector(volume);
+  pair<int,int> active_detid = m_Detector->IsInDetector(volume);
+  int whichactive = active_detid.first;
   if (!whichactive)
   {
     return false;
@@ -91,9 +92,7 @@ bool G4HakanVtxSteppingAction::UserSteppingAction(const G4Step *aStep,
 
   // collect energy and track length step by step
   G4double edep = aStep->GetTotalEnergyDeposit() / GeV;
-  G4double eion =
-      (aStep->GetTotalEnergyDeposit() - aStep->GetNonIonizingEnergyDeposit()) /
-      GeV;
+  G4double eion = (aStep->GetTotalEnergyDeposit() - aStep->GetNonIonizingEnergyDeposit()) / GeV;
   const G4Track *aTrack = aStep->GetTrack();
 
   // if this block stops everything, just put all kinetic energy into edep
@@ -104,7 +103,7 @@ bool G4HakanVtxSteppingAction::UserSteppingAction(const G4Step *aStep,
     killtrack->SetTrackStatus(fStopAndKill);
   }
 
-  int detector_id = 0;  // we use here only one detector in this simple example
+  int detector_id = active_detid.second;
   bool geantino = false;
   // the check for the pdg code speeds things up, I do not want to make
   // an expensive string compare for every track when we know
