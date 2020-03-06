@@ -38,17 +38,21 @@ void G4HakanVtxDisplayAction::ApplyDisplayAction(G4VPhysicalVolume *physvol)
     G4VisAttributes *VisAtt = new G4VisAttributes();
     VisAtt->SetVisibility(true);
     VisAtt->SetForceSolid(true);
+    int forward_id = it.second - 10;
     switch (it.second)
     {
     case 0:
     case 1:
       VisAtt->SetColour(G4Color(0.0, 0.2, 0.8, 2.0));
       break;
-    case 2:
-      VisAtt->SetColour(G4Color(0.0, 0.2, 0.8, 0.7));
+    case 10:
+    case 11:
+    case 12:
+    case 13:
+      VisAtt->SetColour(G4Color(1.0 - 0.1 * forward_id, 1.0, 0.0 + 0.1 * forward_id, 0.5));
       break;
     default:
-      VisAtt->SetColour(G4Color(0.0 + 0.1 * double(it.second - 3), 1., 1. - 0.1 * double(it.second - 3), 1.0));
+      VisAtt->SetColour(G4Color(0.0, 1.0, 1.0, 1.0));
       break;
     }
     (it.first)->SetVisAttributes(VisAtt);

@@ -37,7 +37,8 @@ class G4HakanVtxDetector : public PHG4Detector
   void SuperDetector(const std::string &name) { m_SuperDetector = name; }
   const std::string SuperDetector() const { return m_SuperDetector; }
 
- protected:
+ private:
+  void ConstructLaddersEndcaps(G4LogicalVolume *motherlogic);
   int m_IsActiveFlag;
   int m_IsAbsorberActiveFlag;
   int m_Layers;

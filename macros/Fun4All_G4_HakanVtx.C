@@ -70,6 +70,9 @@ void Fun4All_G4_HakanVtx(int nEvents = 1)
   G4HakanVtxSubsystem *hakanvtx = new G4HakanVtxSubsystem("VTX");
  hakanvtx->set_color(1,1,0,1);
  hakanvtx->SetActive();
+ hakanvtx->OverlapCheck();
+// the code has 4 layers
+ hakanvtx->set_int_param(-1,"forward_layers",3);
   g4Reco->registerSubsystem(hakanvtx);
 
   se->registerSubsystem( g4Reco );

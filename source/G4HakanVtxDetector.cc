@@ -17,6 +17,7 @@
 #include <Geant4/G4SubtractionSolid.hh>
 #include <Geant4/G4SystemOfUnits.hh>
 #include <Geant4/G4ThreeVector.hh>
+#include <Geant4/G4Trap.hh>
 #include <Geant4/G4Tubs.hh>
 #include <Geant4/G4VisAttributes.hh>
 
@@ -39,7 +40,7 @@ G4HakanVtxDetector::G4HakanVtxDetector(PHG4Subsystem *subsys,
   const PHParameters *par = m_ParamsContainer->GetParameters(-1);
   m_IsActiveFlag = par->get_int_param("active");
   m_IsAbsorberActiveFlag = par->get_int_param("absorberactive");
-  m_Layers = par->get_int_param("layers");
+  m_Layers = par->get_int_param("central_layers");
 }
 
 //_______________________________________________________________
@@ -65,42 +66,115 @@ void G4HakanVtxDetector::ConstructMe(G4LogicalVolume *logicWorld)
     double cb_VTX_ladder_Thickness = par->get_double_param("Dx") * cm;
     double dR = par->get_double_param("Rin") * cm;
     double myL = 2 * M_PI * dR;
-    int NUM = myL / cb_VTX_ladder_DY;
+    int laddersCount = myL/cb_VTX_ladder_DY; //Calculate number of staves, from radius and stave width. No overlap defined, but I guess this does ciel implicitly.
     for (int i = 0; i < 2; i++)
     {
-      double LN = cb_VTX_ladder_DY * NUM;
-      double LN1 = cb_VTX_ladder_DY * (NUM + 1 + i);
+      double LN = cb_VTX_ladder_DY * laddersCount;
+      double LN1 = cb_VTX_ladder_DY * (laddersCount + 1 + i);
       if (LN / LN1 > 0.8)
       {
-        NUM++;
+        laddersCount++;
       }
     }
 
-    double cb_VTX_ladder_deltaphi = 2 * M_PI / NUM;
+    double cb_VTX_ladder_deltaphi = 2 * M_PI / laddersCount;
     string solidname = "cb_VTX_ladder_Solid_" + to_string(ilayer);
     G4VSolid *solid = new G4Box(solidname, cb_VTX_ladder_Thickness / 2., cb_VTX_ladder_DY / 2., cb_VTX_ladder_DZ / 2.);
     string logical_name = "cb_VTX_ladder_Logic_" + to_string(ilayer);
     G4LogicalVolume *logical = new G4LogicalVolume(solid, G4Material::GetMaterial("G4_Si"), logical_name);
     m_DisplayAction->AddVolume(logical, ilayer);
 
-    for (int ia = 0; ia < NUM; ia++)
+    for (int ia = 0; ia < laddersCount; ia++)
     {
       double phi = (ia * (cb_VTX_ladder_deltaphi));
       double x = -dR * cos(phi);
       double y = -dR * sin(phi);
       G4RotationMatrix rot;
       rot.rotateZ(cb_VTX_ladder_deltaphi * ia);
-      rot.rotateZ(-7. * deg);
+      rot.rotateZ(par->get_double_param("deltashi") * deg);
       ostringstream physname;
       physname << "cb_VTX_ladder_Phys_" << ilayer << "_" << ia;
-      G4VPhysicalVolume *phy = new G4PVPlacement(G4Transform3D(rot, G4ThreeVector(x, y, -400)),
+      G4VPhysicalVolume *phy = new G4PVPlacement(G4Transform3D(rot, G4ThreeVector(x, y, 0)),
                                                  logical, physname.str(),
                                                  logicWorld, 0, false, OverlapCheck());
+
+      
       m_PhysicalVolumesSet.insert(phy);
     }
   }
-
+  ConstructLaddersEndcaps(logicWorld);
   return;
+}
+
+void G4HakanVtxDetector::ConstructLaddersEndcaps(G4LogicalVolume *motherlogic)
+{
+  int forward_id_offset =  m_ParamsContainer->GetParameters(-1)->get_int_param("forward_id_offset");
+  double Rzshift = m_ParamsContainer->GetParameters(-1)->get_double_param("Rzshift") * cm;
+  double fVTX_END_EDZ =  m_ParamsContainer->GetParameters(-1)->get_double_param("fVTX_END_EDZ") * cm;
+  double fVTX_END_EDX1 = m_ParamsContainer->GetParameters(-1)->get_double_param("fVTX_END_EDX1") * cm;
+  double fVTX_END_EDX2 =  m_ParamsContainer->GetParameters(-1)->get_double_param("fVTX_END_EDX2") * cm;
+  for (int lay = 0; lay <  m_ParamsContainer->GetParameters(-1)->get_int_param("forward_layers"); ++lay)
+  {
+    const PHParameters *par = m_ParamsContainer->GetParameters(lay+forward_id_offset);
+    string solidname = "Solid_VTX_ladder_END_E" + to_string(lay);
+    G4VSolid *solid = new G4Trap(solidname, fVTX_END_EDZ,
+				 par->get_double_param("fVTX_END_EDY")*cm + lay * 2., fVTX_END_EDX1, fVTX_END_EDX2);
+    string logicname = "Logic_VTX_ladder_END_E" + to_string(lay);
+    G4LogicalVolume *logical = new G4LogicalVolume(solid,G4Material::GetMaterial("G4_Si"),logicname);
+    m_DisplayAction->AddVolume(logical, lay+forward_id_offset);
+    double Fdeltaphi = par->get_double_param("Fdeltaphi")*deg;
+    double Ftheta = par->get_double_param("Ftheta")*deg;
+    double RxF =  par->get_double_param("RxF")*cm;
+    double RyF = RxF;
+    double RxF2 = RxF;
+    double RyF2 = RyF;
+    double RzF =  -par->get_double_param("RzF")*cm - Rzshift;
+    double RzF2 = -RzF;
+    for (int ia = 0; ia < par->get_int_param("NUMF"); ia++) 
+    {
+      G4RotationMatrix rot;
+      double phi = (ia * (Fdeltaphi))/rad; // convert to rad (G4 internal units are rad at time of this writing)
+      double x = -RxF * cos(phi);
+      double y = -RyF * sin(phi);
+      double z = RzF;
+      rot.rotateX(Ftheta);
+      rot.rotateZ(-90*deg + (Fdeltaphi * (ia + 1)));
+      //WORKING       rm1[lay][ia].rotateX(-60*deg);
+      //WORKING       rm1[lay][ia].rotateZ(-90+(cb_VTX_ladder_deltaphi*(ia+1)));
+      string physname = "VTX_ladderEnd_" + to_string(lay) + "_" + to_string(ia);
+      G4VPhysicalVolume *phy = new G4PVPlacement(G4Transform3D(rot, G4ThreeVector(x, y, z)),
+						 logical, physname,
+						 motherlogic, 0, false, OverlapCheck());
+      m_PhysicalVolumesSet.insert(phy);
+    }
+
+ solidname = "Solid_VTX_ladder_END_H" + to_string(lay);
+    solid = new G4Trap(solidname, fVTX_END_EDZ,
+				 par->get_double_param("fVTX_END_EDY")*cm, fVTX_END_EDX1, fVTX_END_EDX2);
+    logicname = "Logic_VTX_ladder_END_H" + to_string(lay);
+    logical = new G4LogicalVolume(solid,G4Material::GetMaterial("G4_Si"),logicname);
+    m_DisplayAction->AddVolume(logical, lay+forward_id_offset);
+    for (int ia = 0; ia < par->get_int_param("NUMF"); ia++) 
+    {
+      G4RotationMatrix rot;
+      double phi = (ia * (Fdeltaphi))/rad; // convert to rad (G4 internal units are rad at time of this writing)
+      double x = -RxF2 * cos(phi);
+      double y = -RyF2 * sin(phi);
+      double z = RzF2;
+      rot.rotateX(Ftheta);
+      rot.rotateZ(-90*deg + (Fdeltaphi * (ia + 1)));
+      //WORKING       rm1[lay][ia].rotateX(-60*deg);
+      //WORKING       rm1[lay][ia].rotateZ(-90+(cb_VTX_ladder_deltaphi*(ia+1)));
+      string physname = "VTX_ladderEnd2_" + to_string(lay) + "_" + to_string(ia);
+      G4VPhysicalVolume *phy = new G4PVPlacement(G4Transform3D(rot, G4ThreeVector(x, y, z)),
+						 logical, physname,
+						 motherlogic, 0, false, OverlapCheck());
+      m_PhysicalVolumesSet.insert(phy);
+    }
+
+
+
+  }
 }
 
 void G4HakanVtxDetector::Print(const std::string &what) const
